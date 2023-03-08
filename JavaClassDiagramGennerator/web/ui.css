@@ -1,0 +1,57 @@
+body{
+    padding: 0px;
+    margin: 0px;
+}
+
+#userInterface{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: row;
+}
+
+#QAdocument{
+    width: calc(100vw - 260px);
+}
+
+.question{
+    margin-top: 50px;
+}
+
+.question-title{
+    font-size: 28px;
+    color: rgb(115, 213, 216);
+    margin-left: 50px;
+    display: flex;
+    flex-direction: row;
+    user-select: none;
+}
+
+.question-answer{
+    width: 85%;
+    margin-left: 60px;
+    margin-top: 20px;
+    text-indent: 2em;
+    font-family: 宋体;
+    letter-spacing: 2px;
+}
+
+#originalFileInputer {
+    width: 260px;
+    height: 100%;
+    border-left: solid black 1px;
+    padding-left: 10px;
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+#originalFileInputer div{
+    margin-top: 10px;
+}
+
+#submitBtn1{
+    margin-top: 10px;
+    align-self: center;
+}
+

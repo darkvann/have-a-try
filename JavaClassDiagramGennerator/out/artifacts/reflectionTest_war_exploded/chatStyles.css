@@ -1,0 +1,93 @@
+.classChat{
+    padding: 5px;
+    box-shadow: 5px 5px 9px #cccccc;
+    user-select: none;
+    z-index: 11;
+}
+
+.chatTitle{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: auto;
+    height: 21px;
+    margin: 5px;
+    user-select: none;
+}
+
+.classModifier{
+    color: coral;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.classModifier-main{
+    color: #cc0202;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.className{
+    text-indent: 4em;
+    user-select: none;
+
+}
+
+.classExtends{
+    white-space: nowrap;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    user-select: none;
+}
+
+.classInterface{
+    user-select: none;
+}
+
+.classMethods{
+    user-select: none;
+}
+
+.methodBean{
+    margin-top: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-top: solid #fff 1px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    user-select: none;
+    /*font-size: larger;*/
+}
+
+.classConstructor{
+    user-select: none;
+    white-space: nowrap;
+    /*font-size: smaller;*/
+    font-family: 宋体;
+}
+
+.classMethod{
+    user-select: none;
+    font-family: 宋体;
+    white-space: nowrap;
+    /*font-size: smaller;*/
+}
+
+/*用于显示和隐藏的两个类*/
+.hidden{
+    display: none;
+}
+.visible{
+    display: block;
+}
+.top{
+    z-index: 99;
+}
+
+/*防遮挡*/
+.anti-blocking{
+    opacity: 20%;
+}
