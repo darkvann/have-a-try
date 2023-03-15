@@ -111,6 +111,7 @@ public class testServlet extends HttpServlet{
         JSONArray classInfo = AnalyseFile(loadDir);
         //传回页面
         req.setAttribute("classInfo",classInfo.toJSONString());
+        req.setAttribute("mode",0);
         String jsonPath = req.getServletContext().getRealPath("./")+JSON_FILENAME;
         File resultFile = new File(jsonPath);
         if (resultFile.exists()) {
