@@ -8,6 +8,8 @@ body{
     height: 100vh;
     display: flex;
     flex-direction: row;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
 
 #QAdocument{
@@ -55,3 +57,13 @@ body{
     align-self: center;
 }
 
+#originalFileInputer form{
+    border-bottom: solid black 1px;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+#originalFileInputer label{
+    font-size: larger;
+    color: rgb(203, 152, 24);
+}
