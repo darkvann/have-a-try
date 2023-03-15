@@ -39,6 +39,266 @@ class ClassChat{
         chat.style.left = this.LEFT;
         chat.style.top = this.TOP;
         chat.setAttribute("class","classChat");
+        //双击显示详细的类代码块
+        let that = this;
+        chat.ondblclick = function (){
+            if (document.title === "首页"){
+                alert("当前方式不支持查看全部代码");
+                return ;
+            }
+            if (that.unitInfo.methods.length>0){
+                if (that.unitInfo.methods[0].methodBody === undefined)
+                    alert("当前方式不支持查看全部代码");
+            }
+            if (that.unitInfo.constructors.length>0){
+                if (that.unitInfo.constructors[0].body === undefined)
+                    alert("当前方式不支持查看全部代码");
+            }
+            //
+            if(document.getElementById("detailedClassDiagram")){
+                let detailedClassChat = document.getElementById("detailedClassDiagram")
+                if (detailedClassChat.className.search("hidden")!==-1){
+                    detailedClassChat.className = detailedClassChat.className.split(" hidden").join("")+" visible";
+                }
+                //替换原内容
+
+            }else {
+                let detailedClassChat = document.createElement("div");
+                detailedClassChat.id = "detailedClassDiagram";
+                detailedClassChat.className = "detailedClassDiagram";
+                detailedClassChat.onmouseenter = function (){
+                    let body = document.getElementsByTagName("body")[0];
+                    body.className = "disable-scrollbar";
+                }
+                detailedClassChat.onmouseleave = function (){
+                    let body = document.getElementsByTagName("body")[0];
+                    body.className = "";
+                }
+                //头
+                let head = document.createElement("div");
+                head.id = "detailedClassDiagramHead";
+                let title = document.createElement("div");
+                title.id = "detailedClassDiagramTitle";
+                title.innerText = that.unitInfo.className;
+                head.appendChild(title);
+                let hideBtn = document.createElement("div");
+                hideBtn.className = "hideBtn";
+                hideBtn.innerText = "x";
+                hideBtn.onclick = function (){
+                    detailedClassChat.className = detailedClassChat.className.split(" visible").join("") +" hidden";
+                }
+                head.appendChild(hideBtn);
+                detailedClassChat.appendChild(head);
+                //变量
+                let codeLineIndex = 0;
+                if (that.unitInfo.field!=={}){
+                    let vInfo = that.unitInfo.field.variables;
+                    let variables = document.createElement("div");
+                    variables.id = "variables";
+                    for (let p=0;p<vInfo.length;p++){
+                        codeLineIndex++;
+                        let oneLine =vInfo[p];
+                        let codeLine = document.createElement("div");
+                        let index = document.createElement("div");
+                        index.className = "codeLineIndex";
+                        index.innerText = codeLineIndex+"";
+                        codeLine.appendChild(index);
+                        let codeText = document.createElement("div");
+                        codeText.className = "codeLineText";
+                        codeText.innerText = oneLine;
+                        codeLine.appendChild(codeText);
+                        codeLine.className = "codeLine";
+                        variables.appendChild(codeLine);
+                    }
+                    detailedClassChat.appendChild(variables);
+                }
+                //构造方法
+                let constrLabel = document.createElement("div");
+                constrLabel.className = "labelBar";
+                constrLabel.innerText = "构造函数("+that.unitInfo.constructors.length+")";
+                detailedClassChat.appendChild(constrLabel);
+                let constrs = document.createElement("div");
+                constrs.id = "constrs";
+                constrs.className = "unfold"
+                if (that.unitInfo.constructors.length>0){
+                    let cInfo = that.unitInfo.constructors;
+                    for (let p=0;p<cInfo.length;p++){
+                        codeLineIndex++;
+                        //方法头
+                        let mh = document.createElement("div");
+                        mh.className = "codeLine";
+                        let mi = document.createElement("div");
+                        mi.className = "codeLineIndex";
+                        mi.innerText = codeLineIndex+"";
+                        mh.appendChild(mi);
+                        let mt = document.createElement("div");
+                        mt.className = "codeLineText keyLine";
+                        mt.innerText = cInfo[p].constrDeclaration;
+                        mh.appendChild(mt);
+                        constrs.appendChild(mh);
+                        //方法体
+                        let ls = cInfo[p].body.split("\r\n");
+                        ls.forEach(l=>{
+                            codeLineIndex++;
+                            let codeLine = document.createElement("div");
+                            let index = document.createElement("div");
+                            index.className = "codeLineIndex";
+                            index.innerText = codeLineIndex+"";
+                            codeLine.appendChild(index);
+                            let codeText = document.createElement("div");
+                            codeText.className = "codeLineText";
+                            codeText.innerText = l;
+                            codeLine.appendChild(codeText);
+                            codeLine.className = "codeLine";
+                            constrs.appendChild(codeLine);
+                        })
+                    }
+                }
+                let foldBarOfConstr = document.createElement("div");
+                foldBarOfConstr.className = "labelBar";
+                foldBarOfConstr.innerText = "收起";
+                // foldBarOfConstr.style.borderTop = "solid #666666 1px";
+                foldBarOfConstr.style.marginBottom = "10px";
+                foldBarOfConstr.onclick = function (){
+                    if (constrs.className === "fold"){
+                        constrs.className = "unfold";
+                        this.innerText = "收起";
+                    }else {
+                        constrs.className = "fold";
+                        this.innerText = "展开";
+                    }
+                }
+                detailedClassChat.appendChild(constrs);
+                detailedClassChat.appendChild(foldBarOfConstr);
+
+                //一般的方法
+                let methodLabel = document.createElement("div");
+                methodLabel.className = "labelBar";
+                methodLabel.innerText = "函数("+that.unitInfo.methods.length+")";
+                detailedClassChat.appendChild(methodLabel);
+                let methods = document.createElement("div");
+                methods.id = "methods";
+                methods.className = "unfold";
+                if (that.unitInfo.methods.length>0){
+                    let mInfo = that.unitInfo.methods;
+                    for (let p=0;p<mInfo.length;p++){
+                        codeLineIndex++;
+                        //方法头
+                        let mh = document.createElement("div");
+                        mh.className = "codeLine";
+                        let mi = document.createElement("div");
+                        mi.className = "codeLineIndex";
+                        mi.innerText = codeLineIndex+"";
+                        mh.appendChild(mi);
+                        let mt = document.createElement("div");
+                        mt.className = "codeLineText keyLine";
+                        mt.innerText = mInfo[p].declaration;
+                        mh.appendChild(mt);
+                        methods.appendChild(mh);
+                        //方法体
+                        let ls = mInfo[p].methodBody.split("\r\n");
+                        ls.forEach(l=>{
+                            codeLineIndex++;
+                            let codeLine = document.createElement("div");
+                            let index = document.createElement("div");
+                            index.className = "codeLineIndex";
+                            index.innerText = codeLineIndex+"";
+                            codeLine.appendChild(index);
+                            let codeText = document.createElement("div");
+                            codeText.className = "codeLineText";
+                            codeText.innerText = l;
+                            codeLine.appendChild(codeText);
+                            codeLine.className = "codeLine";
+                            methods.appendChild(codeLine);
+                        })
+                    }
+                }
+                let foldBarOfMethod = document.createElement("div");
+                foldBarOfMethod.className = "labelBar";
+                foldBarOfMethod.innerText = "收起";
+                // foldBarOfMethod.style.borderTop = "solid #666666 1px";
+                foldBarOfMethod.style.marginBottom = "10px";
+                foldBarOfMethod.onclick = function (){
+                    if (methods.className === "fold"){
+                        methods.className = "unfold";
+                        this.innerText = "收起";
+                    }else {
+                        methods.className = "fold";
+                        this.innerText = "展开";
+                    }
+                }
+                detailedClassChat.appendChild(methods);
+                detailedClassChat.appendChild(foldBarOfMethod);
+
+                //内部类
+                let innerClassLabel = document.createElement("div");
+                innerClassLabel.className = "labelBar";
+                innerClassLabel.innerText = "内部类("+that.unitInfo.innerClasses.length+")";
+                detailedClassChat.appendChild(innerClassLabel);
+                let innerClasses = document.createElement("div");
+                innerClasses.id = "innerClasses";
+                innerClasses.className = "unfold";
+                if (that.unitInfo.innerClasses.length>0){
+                    let inInfo = that.unitInfo.innerClasses;
+                    for (let p=0;p<inInfo.length;p++){
+                        //类头
+                        codeLineIndex++;
+                        let h ="";
+                        if (inInfo[p].modifier.length>0){
+                            inInfo[p].modifier.forEach(m=>{
+                                h = h+"class "+m;
+                            })
+                        }
+                        h = h + inInfo[p].name;
+                        let mh = document.createElement("div");
+                        mh.className = "codeLine";
+                        let mi = document.createElement("div");
+                        mi.className = "codeLineIndex";
+                        mi.innerText = codeLineIndex+"";
+                        mh.appendChild(mi);
+                        let mt = document.createElement("div");
+                        mt.className = "codeLineText keyLine";
+                        mt.innerText = h;
+                        mh.appendChild(mt);
+                        innerClasses.appendChild(mh);
+                        //方法体
+                        let ls = inInfo[p].body.split("\r\n");
+                        ls.forEach(l=>{
+                            codeLineIndex++;
+                            let codeLine = document.createElement("div");
+                            let index = document.createElement("div");
+                            index.className = "codeLineIndex";
+                            index.innerText = codeLineIndex+"";
+                            codeLine.appendChild(index);
+                            let codeText = document.createElement("div");
+                            codeText.className = "codeLineText";
+                            codeText.innerText = l;
+                            codeLine.appendChild(codeText);
+                            codeLine.className = "codeLine";
+                            innerClasses.appendChild(codeLine);
+                        })
+                    }
+                }
+                detailedClassChat.appendChild(innerClasses);
+                let foldBarOfInnerClass = document.createElement("div");
+                foldBarOfInnerClass.className = "labelBar";
+                foldBarOfInnerClass.innerText = "收起";
+                foldBarOfInnerClass.style.marginBottom = "10px";
+                foldBarOfInnerClass.onclick = function (){
+                    if (innerClasses.className === "fold"){
+                        innerClasses.className = "unfold";
+                        this.innerText = "收起";
+                    }else {
+                        innerClasses.className = "fold";
+                        this.innerText = "展开";
+                    }
+                }
+                detailedClassChat.appendChild(foldBarOfInnerClass);
+
+                that.container.appendChild(detailedClassChat);
+            }
+
+        }
         //添加显式子元素
         let cModifier = document.createElement("div");
         cModifier.className = "classModifier";
@@ -49,11 +309,18 @@ class ClassChat{
                 cModifier.className = "classModifier-main";
             }
         })
+        if (this.unitInfo.className.split("$").length>1){
+            modifierStr = modifierStr+" innerClass";
+            cModifier.className = "classModifier-inner";
+        }
         cModifier.innerHTML = modifierStr;
         chat.appendChild(cModifier);
         let cName = document.createElement("div");
         cName.className = "className";
-        cName.innerHTML = this.unitInfo.className;
+        if (this.unitInfo.package)
+            cName.innerHTML = this.unitInfo.package+"."+this.unitInfo.className;
+        else
+            cName.innerHTML = this.unitInfo.className;
         chat.appendChild(cName);
         if (this.unitInfo.extends !== undefined && this.unitInfo.extends !=="" && this.unitInfo.extends.substring(this.unitInfo.extends.lastIndexOf(".")+1)!=="Object"){
             let cExtends = document.createElement("div");
@@ -63,7 +330,9 @@ class ClassChat{
             m.style.marginRight = "5px";
             m.innerHTML = "extends ";
             cExtends.appendChild(m);
+            if (this.unitInfo.extends.search("class ")!==-1)
             cExtends.innerHTML =cExtends.innerHTML + this.unitInfo.extends.split(" ")[1];
+            else cExtends.innerHTML = cExtends.innerHTML + this.unitInfo.extends;
             chat.appendChild(cExtends);
         }
         if (this.unitInfo.interface.length!=0){
@@ -137,7 +406,11 @@ class ClassChat{
                 this.unitInfo.methods.forEach(method=>{
                     let cMethod = document.createElement("div");
                     cMethod.className = "classMethod hidden";
+                    if (method.declaration === null || method.declaration === undefined)
                     cMethod.innerText = method.modifier + " "+method.returnType+" " +method.MethodName+"（"+method.params+"）";
+                    else {
+                        cMethod.innerText = method.declaration;
+                    }
                     methodContainer.appendChild(cMethod);
                 })
                 cMethods.appendChild(methodContainer);
@@ -167,6 +440,15 @@ class ClassChat{
         return this.unitInfo.className;
     }
 
+    //获取包名
+    GetPackage(){
+        if (this.unitInfo.package!==undefined && this.unitInfo.package!==null && this.unitInfo.package!=="")
+        return this.unitInfo.package;
+        else {
+            return this.unitInfo.className.slice(0,this.unitInfo.className.lastIndexOf("."));
+        }
+    }
+
     //判断类是否包含main入口
     IsEnterClass(){
         for (let p=0;p<this.unitInfo.methods.length;p++){
@@ -180,7 +462,8 @@ class ClassChat{
     //获取继承关系 返回值:String 类名 / null
     GetExtend(){
         if (this.unitInfo.extends !== "" && this.unitInfo.extends !== "class java.lang.Object"){
-            return this.unitInfo.extends.split(" ")[1];
+            if (this.unitInfo.extends.search("class ")!==-1) return this.unitInfo.extends.split(" ")[1];
+            else return this.unitInfo.extends;
         }
         return null;
     }
@@ -191,6 +474,11 @@ class ClassChat{
             return this.unitInfo.interface;
         }
         return null;
+    }
+
+    //改变chat的背景颜色
+    ChangeMyBGColor(color){
+        this.chatObj.style.backgroundColor = "RGB("+color[0]+","+ color[1]+","+color[2]+")";
     }
 
     //获取位置 返回值为float[]二元数组
@@ -285,6 +573,16 @@ class ClassChat{
         this.computedPosition = [nLeft,nTop];
     }
 
+    //让chat变成被关注状态
+    BeFocus(){
+        this.chatObj.className = this.chatObj.className + " beFocus";
+    }
+
+    //清除被关注状态
+    NotFocus(){
+        this.chatObj.className = this.chatObj.className.split("beFocus").join("");
+    }
+
     //向Y轴正方向移动 moveSpeed px
     MoveToYPositive(){
         let p = this.GetPosition();
@@ -340,6 +638,10 @@ class ClassChat{
         this.chatObj.style.transform = 'translate('+ this.translatedDistanceX + "px," + this.translatedDistanceY +'px)';
     }
 
+    //获取偏移量
+    GetTranslate(){
+        return [this.translatedDistanceX,this.translatedDistanceY];
+    }
     /*
     *改变位置并修改连线
     */

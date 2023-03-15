@@ -10,6 +10,7 @@ class ChatManager{
     static beginX = (window.innerWidth || document.documentElement.clientWidth)/2; //起始添加位置X坐标
     static floorHeight = [20]; //记录每层前一层最低处所在的高度
 
+    static packageColor = [[195, 112, 14]]
     /*
     *向目标层无序插入chat
     * 参数  chat ClassChat对象 或 ExternalClassChat对象
@@ -22,7 +23,7 @@ class ChatManager{
             chat.SetPosition(this.beginX-chat.GetSize()[0]/2,targetFloor===0?this.floorHeight[0]:(this.floorHeight[targetFloor]+this.marginOfEachFloor));
             this.inserted[targetFloor] = [chat];
             if (this.floorHeight[targetFloor+1] === undefined){
-                this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+chat.GetSize()[1];
+                this.floorHeight[targetFloor+1] =targetFloor===0?this.floorHeight[0]+chat.GetSize()[1]:this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1];
             }
         }else {
             let leftEdge=this.beginX,rightEdge=this.beginX;
@@ -40,7 +41,7 @@ class ChatManager{
                 this.inserted[targetFloor].push(chat);
             }
             if (this.floorHeight[targetFloor+1] < this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1]){
-                this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+chat.GetSize()[1];
+                this.floorHeight[targetFloor+1] = targetFloor===0?this.floorHeight[0]+chat.GetSize()[1]:this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1];
             }
         }
     }
@@ -92,15 +93,15 @@ class ChatManager{
         //放置chat
         //当前层为空层
         if (this.inserted[targetFloor] === null || this.inserted[targetFloor] === undefined){
-            let relatedXTotal;
+            let relatedXTotal=0;
             for (let p=0;p<relatedChats.length;p++){
-                relatedXTotal = relatedChats[p].GetPosition()[0];
+                relatedXTotal = relatedXTotal + relatedChats[p].GetPosition()[0]+relatedChats[p].GetSize()[0]/2;
             }
             let relatedX = relatedXTotal/relatedChats.length;
-            chat.SetPosition(relatedX,this.floorHeight[targetFloor]+this.marginOfEachFloor);
+            chat.SetPosition(relatedX-chat.GetSize()[0]/2,this.floorHeight[targetFloor]+this.marginOfEachFloor);
             this.inserted[targetFloor] = [chat];
             if (this.floorHeight[targetFloor+1] === undefined){
-                this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+chat.GetSize()[1];
+                this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1];
             }
             return true;
         }else {
@@ -115,7 +116,7 @@ class ChatManager{
             for (let p=0;p<this.inserted[targetFloor].length;p++){
                 unusableInterval.push([this.inserted[targetFloor][p].GetPosition()[0],this.inserted[targetFloor][p].GetPosition()[0]+this.inserted[targetFloor][p].GetSize()[0]]);
             }
-            //如果只有一个无效区间则在距默认点最近处放置，有多个区间需要算出他们之间的区间即有效区间，再进行判断
+            //如果只有一个已占用区间则在距默认点最近处放置，有多个区间需要算出他们之间的区间即有效区间，再进行判断
             if (unusableInterval.length === 1){
                 //在区间右侧可直接放置
                 if (relatedX > unusableInterval[0][1]){
@@ -160,6 +161,24 @@ class ChatManager{
                 let usableInterval = [];
                 let leftEdge = unusableInterval[0][0] //无效区间左边界
                 let rightEdge = unusableInterval[unusableInterval.length-1][1]; //无效区间右边界
+                //默认点位就在右侧
+                if (relatedX > rightEdge){
+                    chat.SetPosition(relatedX,this.floorHeight[targetFloor]+this.marginOfEachFloor);
+                    this.inserted[targetFloor].push(chat);
+                    if (this.floorHeight[targetFloor+1]<this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1]){
+                        this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1];
+                    }
+                    return true;
+                }else if (relatedX + chat.GetSize()[0] < leftEdge){
+                    //默认位置就在左侧且放得下
+                    chat.SetPosition(relatedX,this.floorHeight[targetFloor]+this.marginOfEachFloor);
+                    this.inserted[targetFloor].push(chat);
+                    if (this.floorHeight[targetFloor+1]<this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1]){
+                        this.floorHeight[targetFloor+1] = this.floorHeight[targetFloor]+this.marginOfEachFloor+chat.GetSize()[1];
+                    }
+                    return true;
+                }
+
                 for (let p=0;p<unusableInterval.length-1;p++){
                     usableInterval.push([unusableInterval[p][1],unusableInterval[p+1][0]]);
                 }
@@ -236,6 +255,61 @@ class ChatManager{
 
         }
 
+    }
+
+    /*
+     *在特定颜色区间内生成随机颜色，颜色不重复
+     * 参数 num: int 生成的颜色数量，最小为1,小于1视为1，为1时返回默认颜色;已有对应数量的颜色直接返回
+     */
+    static GenerateThemeColor(num){
+        let blueRInterval = [54,181],blueGInterval = [109,226],blueBInterval = [143,255];
+        let yellowRInterval = [143,219],yellowGInterval = [90,172],yellowBInterval = [16,105];
+        let differenceB = Math.sqrt(Math.pow(blueRInterval[1]-blueRInterval[0],2)+Math.pow(blueGInterval[1]-blueGInterval[0],2)+Math.pow(blueBInterval[1]-blueBInterval[0],2));
+        let differenceY = Math.sqrt(Math.pow(yellowRInterval[1]-yellowRInterval[0],2)+Math.pow(yellowGInterval[1]-yellowGInterval[0],2)+Math.pow(yellowBInterval[1]-yellowBInterval[0],2));
+
+        if (num<=this.packageColor.length){
+            if (num<=1) return this.packageColor[0];
+            return this.packageColor.slice(0,num-1);
+        }else {
+            let p=0;
+            while (this.packageColor.length<num){
+                let R = Math.floor(Math.random()*256);
+                let G = Math.floor(Math.random()*256);
+                let B = Math.floor(Math.random()*256);
+                let dbl = Math.sqrt(Math.pow(Math.abs(R-blueRInterval[0]),2)+Math.pow(Math.abs(G-blueGInterval[0]),2)+Math.pow(Math.abs(B-blueBInterval[0]),2));
+                let dbr = Math.sqrt(Math.pow(Math.abs(R-blueRInterval[1]),2)+Math.pow(Math.abs(G-blueGInterval[1]),2)+Math.pow(Math.abs(B-blueBInterval[1]),2));
+                let dyl = Math.sqrt(Math.pow(Math.abs(R-yellowRInterval[0]),2)+Math.pow(Math.abs(G-yellowGInterval[0]),2)+Math.pow(Math.abs(B-yellowBInterval[0]),2));
+                let dyr = Math.sqrt(Math.pow(Math.abs(R-yellowRInterval[1]),2)+Math.pow(Math.abs(G-yellowGInterval[1]),2)+Math.pow(Math.abs(B-yellowBInterval[1]),2));
+
+                if ((dbl<=differenceB*0.7 && dbr<=differenceB*0.5) || (dyl<=differenceY*0.4 && dyr<=differenceY*0.8) ){
+                    //判断与已有颜色的相似度，相似度不能太高以使颜色易区分
+                    let isRelatedToOthers = false;
+                    for (let n=0;n<this.packageColor.length;n++){
+                        let d = Math.sqrt(Math.pow(Math.abs(R-this.packageColor[n][0]),2)+Math.pow(Math.abs(G-this.packageColor[n][1]),2)+Math.pow(Math.abs(B-this.packageColor[n][2]),2));
+                        if (p<=50){
+                            if (d<=20){
+                                isRelatedToOthers = false;
+                                break;
+                            }
+                        }else {
+                            //实在是找不到时,不重复即可
+                            if (d===0){
+                                isRelatedToOthers = false;
+                                break;
+                            }
+                        }
+
+                    }
+                    if (!isRelatedToOthers){
+                        this.packageColor.push([R,G,B]);
+                        p=0;
+                    }else {
+                        p++;
+                    }
+                }
+            }
+            return this.packageColor;
+        }
     }
 
 }

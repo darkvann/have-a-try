@@ -13,6 +13,16 @@
         <servlet-name>downloadServlet</servlet-name>
         <servlet-class>myServlet.downloadServlet</servlet-class>
     </servlet>
+
+    <servlet>
+        <servlet-name>getBodyOfFunc</servlet-name>
+        <servlet-class>myServlet.getBodyOfFunc</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>getBodyOfFunc</servlet-name>
+        <url-pattern>/getBody</url-pattern>
+    </servlet-mapping>
     
     <servlet-mapping>
         <servlet-name>testServlet</servlet-name>
@@ -23,4 +33,6 @@
         <servlet-name>downloadServlet</servlet-name>
         <url-pattern>/download</url-pattern>
     </servlet-mapping>
+
+
 </web-app>
