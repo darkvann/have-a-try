@@ -16,6 +16,19 @@
       <script src="ExternalClassChat.js"></script>
       <script src="ClassChat.js"></script>
       <script src="drawer.js"></script>
+      <script src="myJavaParser/MyJavaParser.js"></script>
+      <script src="myJavaParser/CompilationUnit.js"></script>
+      <script src="myJavaParser/EnumModifier.js"></script>
+      <script src="myJavaParser/PackageContainer.js"></script>
+      <script src="myJavaParser/ReferenceContainer.js"></script>
+      <script src="myJavaParser/ClassOrInterfaceContainer.js"></script>
+      <script src="myJavaParser/Tools.js"></script>
+      <script src="myJavaParser/ConstructorContainer.js"></script>
+      <script src="myJavaParser/FunctionContainer.js"></script>
+      <script src="myJavaParser/VariableContainer.js"></script>
+      <script src="myJavaParser/InterfaceFunctionContainer.js"></script>
+      <script src="analyzer.js"></script>
+
   </head>
   <body>
   <script>
@@ -106,12 +119,22 @@
         <input type="submit" value="上传" style="margin-top: 10px">
       </form>
 
-      <div>
+      <div id="jsonLoader">
         <label>本地方式</label>
         <div>导入result.json</div>
         <input type="file"  id="fileInputer3">
       </div>
+
+      <div>
+        <label>本地js解析</label>
+        <div>选择文件夹</div>
+        <input type="file" webkitdirectory="true" name="single" id="jsParser1" >
+        <div>选择文件</div>
+        <input type="file" multiple="true" id="jsParser2">
+      </div>
+
       <script>
+        //中间文件解析
         let jsonInputer = document.getElementById("fileInputer3");
         jsonInputer.onchange = function (e){
           let inputFiles = jsonInputer.files;
@@ -133,6 +156,62 @@
               }
               reader.readAsText(inputFiles[0]);
           }
+        }
+
+        // js解析java
+        let jsDirectoryParser = document.getElementById("jsParser1");
+        let jsFilesParser = document.getElementById("jsParser2");
+        jsDirectoryParser.addEventListener("change",javaParserByJS);
+        jsFilesParser.addEventListener("change",javaParserByJS);
+        function javaParserByJS(e){
+          let inputFiles = this.files;
+          let legalFiles = new Array(); //java源文件数组
+          let ilegalFiles = new Array(); //非java文件
+
+          // 进行分拣，把非java文件排除并提示用户
+          for (item in inputFiles) {
+            if (inputFiles[item].name && inputFiles[item].name != "item") {
+              let x = inputFiles[item].name.split(".");
+              if (x[x.length - 1] == "java") {
+                legalFiles[legalFiles.length] = inputFiles[item];
+              } else {
+                ilegalFiles[ilegalFiles.length] = inputFiles[item];
+              }
+            }
+          }
+
+          //输出提示信息，提示用户应该传入.java结尾的文件
+          for (y in ilegalFiles) {
+            console.log("文件" + ilegalFiles[y].name + '不是java文件')
+          }
+          // console.log(legalFiles)
+
+          if (legalFiles.length>0){
+              let compilationUnitList = [];
+              for (let i in legalFiles){
+                  readFile(legalFiles[i]).then(function (result){
+                    compilationUnitList.push(result);
+                    if (compilationUnitList.length === legalFiles.length){
+                      let classInfo = analyzer(compilationUnitList);
+                      //跳转到新页面去绘制图像
+                      window.sessionStorage.setItem("data",JSON.stringify(classInfo) );
+                      window.location.href = "feedbackPageForEntrance4.jsp";
+                    }
+                  })
+
+                  function readFile(file){
+                    return  new Promise((resolve,reject)=>{
+                      let reader = new FileReader();
+                      reader.readAsText(file);
+                      reader.onload = function (){
+                          let compilationUnit = MyJavaParser.parser(this.result);
+                          resolve(compilationUnit);
+                      }
+                    })
+                  }
+             }
+          }
+
         }
       </script>
 
