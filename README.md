@@ -1,2 +1,2 @@
-# JavaClassDiagramGennerator
+# JavaClassDiagramGennerator Web
 一个java项目包转类图的网站，通过反射和文件解析两种方式实现，本地解析所用解析器为我自己原创。
